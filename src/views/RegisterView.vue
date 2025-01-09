@@ -1,5 +1,7 @@
 <script setup>
 import { ref } from 'vue';
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "../firebase";
 import { useStore } from '../stores';
 import { useRouter } from 'vue-router';
 
@@ -25,6 +27,26 @@ const handleRegister = () => {
     }
 };
 
+async function registerByEmail() {
+  try {
+    const user = (await createUserWithEmailAndPassword(auth, email.value, password.value)).user;
+    await updateProfile(user, { displayName: `${firstName.value} ${lastName.value}` });
+    store.user = user;
+    router.push("/movies");
+  } catch (error) {
+    alert("There was an error creating a user with email!");
+  }
+}
+
+async function registerByGoogle() {
+  try {
+    const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
+    store.user = user;
+    router.push("/movies");
+  } catch (error) {
+    alert("There was an error creating a user with Google!");
+  }
+}
 </script>
 
 <template>
@@ -42,6 +64,7 @@ const handleRegister = () => {
             <input v-model="reEnterPassword" type="password" placeholder="Re-enter Password" class="input-field"
                 required />
             <button type="submit" class="button login">Register</button>
+            <button @click="registerByGoogle()" class="button register">Register by Google</button>
         </form>
     </div>
 </template>
