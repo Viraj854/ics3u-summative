@@ -14,18 +14,18 @@ const email = ref('');
 const password = ref('');
 const reEnterPassword = ref('');
 
-const handleRegister = () => {
-    if (password.value === reEnterPassword.value) {
-        store.firstName = firstName.value;
-        store.lastName = lastName.value;
-        store.email = email.value;
-        store.password = password.value;
-        router.push('/movies');
-    } else {
-        alert('Passwords do not match!');
+// const handleRegister = () => {
+//     if (password.value === reEnterPassword.value) {
+//         store.firstName = firstName.value;
+//         store.lastName = lastName.value;
+//         store.email = email.value;
+//         store.password = password.value;
+//         router.push('/movies');
+//     } else {
+//         alert('Passwords do not match!');
     
-    }
-};
+//     }
+// };
 
 async function registerByEmail() {
   try {
@@ -56,7 +56,7 @@ async function registerByGoogle() {
 
     <div class="form-container">
         <h2>Register Account</h2>
-        <form @submit.prevent="handleRegister">
+        <form @submit.prevent="registerByEmail()">
             <input v-model="firstName" type="text" placeholder="First Name" class="input-field" required />
             <input v-model="lastName" type="text" placeholder="Last Name" class="input-field" required />
             <input v-model="email" type="email" placeholder="Email" class="input-field" required />
