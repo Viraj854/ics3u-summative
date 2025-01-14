@@ -2,46 +2,48 @@
 import { ref } from 'vue';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase";
-import { useStore } from '../stores';
 import { useRouter } from 'vue-router';
+import { useStore } from '../stores';
 
 const store = useStore();
 const router = useRouter();
 
+const password = ref('');
+const reEnterPassword = ref('');
 const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
-const password = ref('');
-const reEnterPassword = ref('');
-
-// const handleRegister = () => {
-//     if (password.value === reEnterPassword.value) {
-//         store.firstName = firstName.value;
-//         store.lastName = lastName.value;
-//         store.email = email.value;
-//         store.password = password.value;
-//         router.push('/movies');
-//     } else {
-//         alert('Passwords do not match!');
-    
-//     }
-// };
 
 async function registerByEmail() {
-  try {
-    const user = (await createUserWithEmailAndPassword(auth, email.value, password.value)).user;
-    await updateProfile(user, { displayName: `${firstName.value} ${lastName.value}` });
-    store.user = user;
-    router.push("/movies");
-  } catch (error) {
-    alert("There was an error creating a user with email!");
+  if (password.value === reEnterPassword.value) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+      const user = userCredential.user;
+
+      store.firstName = firstName.value;
+      store.lastName = lastName.value;
+      store.email = email.value;
+      store.password = password.value;
+
+      await updateProfile(user, { displayName: `${firstName.value} ${lastName.value}` });
+
+      store.user = user;
+
+      router.push("/movies");
+    } catch (error) {
+      alert("There was an error creating a user with email!");
+    }
+  } else {
+    window.alert("The passwords are not the same!");
   }
 }
 
-async function registerByGoogle() {
+async function registerByGoogle(event) {
+  event.preventDefault();
   try {
-    const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
-    store.user = user;
+    const user = await signInWithPopup(auth, new GoogleAuthProvider());
+    store.user = user.user;
+
     router.push("/movies");
   } catch (error) {
     alert("There was an error creating a user with Google!");
