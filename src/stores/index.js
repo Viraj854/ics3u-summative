@@ -10,8 +10,20 @@ export const useStore = defineStore('store', () => {
   const password = ref('');
   const cart = ref(new Map());
 
+  const setUser = (firebaseUser) => {
+    user.value = firebaseUser;
+  };
 
-  return { firstName, lastName, email, password, cart };
+  onAuthStateChanged(auth, (firebaseUser) => {
+    if (firebaseUser) {
+      setUser(firebaseUser);
+    } else {
+      setUser(null);
+    }
+  });
+
+
+  return { firstName, lastName, email, password, cart, setUser };
 })
 
 export const userAuthorized = new Promise((resolve, reject) => {

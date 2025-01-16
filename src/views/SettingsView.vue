@@ -1,8 +1,26 @@
 <script setup>
-import Header from '../components/Header.vue';
+import { ref } from 'vue';
 import { useStore } from '../stores';
+import { useRouter } from 'vue-router';
+import { updateProfile } from 'firebase/auth';
+import { auth } from '../firebase';
 
-const store = useStore(); 
+const store = useStore();
+const router = useRouter();
+
+const user = store.user;
+const firstName = ref(user?.displayName?.split(' ')[0] || '');
+const lastName = ref(user?.displayName?.split(' ')[1] || '');
+const email = ref(user?.email || '');
+
+const handleSubmit = async () => {
+    try {
+        await updateProfile(user, { displayName: `${firstName.value} ${lastName.value}` });
+        router.push("/movies");
+    } catch (error) {
+        alert("There was an error updating your profile!");
+    }
+};
 </script>
 
 <template>
@@ -10,15 +28,21 @@ const store = useStore();
     <RouterLink to="/movies" class="back-button">Back</RouterLink>
     <div class="settings-container">
         <h2>Settings</h2>
-        <p>
-            <strong>First Name:</strong>
-            <input v-model="store.firstName" type="text" placeholder="Enter first name" />
-        </p>
-        <p>
-            <strong>Last Name:</strong>
-            <input v-model="store.lastName" type="text" placeholder="Enter last name" />
-        </p>
-        <p><strong>Email:</strong> {{ store.email }}</p>
+        <form @submit.prevent="handleSubmit">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input v-model="firstName" type="text" id="firstName" required />
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input v-model="lastName" type="text" id="lastName" required />
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input v-model="email" type="text" id="email" readonly required />
+            </div>
+            <button type="submit" class="button-save">Save Changes</button>
+        </form>
     </div>
 </template>
 
@@ -76,5 +100,25 @@ input:focus {
 
 .back-button:hover {
     background-color: #305a8a;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; 
+}
+
+.button-save {
+  padding: 12px 30px;
+  background-color: #4073ad;
+  font-size: 16px;
+  color: white;
+  margin-top: 20px;
+  border-radius: 5px;
+}
+
+.button-save:hover {
+  background-color: #305a8a;
 }
 </style>

@@ -1,15 +1,24 @@
 <script setup>
+import { onMounted, ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useStore } from '../stores';
-import { RouterLink, useRouter } from 'vue-router';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 
 const store = useStore();
+const isHomePage = ref(false);
+const route = useRoute();
 const router = useRouter();
 
-function logoutAndSignOut(event) {
-  event.preventDefault();
-  router.push('/').then(() => {
-    window.location.reload();
-  });
+onMounted(() => {
+    if (route.path === '/') {
+        isHomePage.value = true;
+    }
+});
+const logout = () => {
+  store.user = null;
+  signOut(auth);
+  router.push("/");
 }
 </script>
 
@@ -22,10 +31,10 @@ function logoutAndSignOut(event) {
     </div>
 
     <div v-if="store.email">
-      <p class="welcome-message">Hello {{ store.firstName }}!</p>
+      <p class="welcome-message">Welcome, {{ store.user?.displayName || 'Guest' }}</p>
       <RouterLink to="/cart" class="button cart">Cart</RouterLink>
       <RouterLink to="/settings" class="button settings">Settings</RouterLink>
-      <RouterLink to="/" class="button settings" @click="logoutAndSignOut">Logout</RouterLink>
+      <RouterLink to="/" class="button settings" @click="logout">Logout</RouterLink>
     </div>
 
     <h1>VFlix</h1>
