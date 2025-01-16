@@ -3,6 +3,15 @@ import Header from '../components/Header.vue';
 import { useStore } from '../stores';
 
 const store = useStore();
+
+const checkout = () => {
+  store.cart.clear();
+  localStorage.removeItem('cart');
+  store.checkoutMessage = 'Thank you for your purchase!';
+  setTimeout(() => {
+    store.checkoutMessage = '';
+  }, 3000);
+};
 </script>
 
 <template>
@@ -16,6 +25,10 @@ const store = useStore();
                 <h3>{{ value.title }}</h3>
                 <button @click="store.cart.delete(key)">Remove</button>
             </div>
+        </div>
+        <button class="checkout-button" @click="checkout">Checkout</button>
+        <div v-if="store.checkoutMessage" class="thank-you-message">
+          {{ store.checkoutMessage }}
         </div>
     </div>
 </template>
@@ -109,5 +122,26 @@ button:hover {
 
 .back-button:hover {
     background-color: #305a8a;
+}
+
+.checkout-button {
+  padding: 12px 30px;
+  background-color: #4073ad;
+  font-size: 16px;
+  color: white;
+  margin-top: 20px;
+  border-radius: 5px;
+}
+
+.checkout-button:hover {
+  background-color: #305a8a;
+}
+
+.thank-you-message {
+  margin-top: 20px;
+  color: #4073ad;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
 }
 </style>
