@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "../stores";
 
@@ -10,37 +10,37 @@ const selectedGenre = ref(28);
 const response = ref(null);
 const store = useStore();
 
-async function getMovieByGenre() {
-    response.value = await axios.get(`https://api.themoviedb.org/3/discover/movie?api_key=${import.meta.env.VITE_TMDB_KEY}&with_genres=${selectedGenre.value}`);
-}
+const getMovieByGenre = async () => {
+    response.value = await axios.get(
+        `https://api.themoviedb.org/3/discover/movie?api_key=${import.meta.env.VITE_TMDB_KEY}&with_genres=${selectedGenre.value}`
+    );
+};
 
-function getMovieDetails(id) {
-    router.push(`/movies/${id}`)
-}
+onMounted(getMovieByGenre);
 
-onMounted(async () => {
-    response.value = await axios.get(`https://api.themoviedb.org/3/discover/movie?api_key=${import.meta.env.VITE_TMDB_KEY}&with_genres=${selectedGenre.value}`);
-})
+function addToCart(movie) {
+    store.cart.set(String(movie.id), { title: movie.title || item.name, url: movie.poster_path })
+    localStorage.setItem(`cart_${store.user.email}`, JSON.stringify(Object.fromEntries(store.cart)));
+}
 </script>
 
 <template>
     <div class="movie-gallery">
-        <select v-model="selectedGenre" @change="getMovieByGenre()">
-            <option v-for="genre of genres" :value="genre.id">{{ genre.genreName }}</option>
+        <select v-model="selectedGenre" @change="getMovieByGenre">
+            <option v-for="genre of genres" :value="genre.id" :key="genre.id">{{ genre.genreName }}</option>
         </select>
         <div v-if="response" class="movie-list">
-            <div v-for="movie in response.data.results" :key="movie.id" class="movie-card"
-                @click="getMovieDetails(movie.id)">
-                <img :src="`https://image.tmdb.org/t/p/w500${movie.poster_path}`" alt="Movie Poster"
-                    class="movie-poster" />
-                <p class="movie-title">{{ movie.title }}</p>
-                <button v-if="store.cart.has(movie.id)" class="buy-button">
-                    Added
-                </button>
-                <button v-else
-                    @click="store.cart.set(movie.id, { title: movie.title, url: movie.poster_path }); $event.stopPropagation()"
-                    class="buy-button">
+            <div v-for="movie in response.data.results" :key="movie.id" class="movie-card">
+                <div @click="router.push(`/movies/${movie.id}`)">
+                    <img :src="`https://image.tmdb.org/t/p/w500${movie.poster_path}`" alt="Movie Poster"
+                        class="movie-poster" />
+                    <p class="movie-title">{{ movie.title }}</p>
+                </div>
+                <button v-if="!store.cart.has(String(movie.id))" @click="addToCart(movie)" class="buy-button">
                     Buy
+                </button>
+                <button v-else class="buy-button">
+                    Added
                 </button>
             </div>
         </div>

@@ -4,14 +4,16 @@ import { useStore } from '../stores';
 
 const store = useStore();
 
-const checkout = () => {
-  store.cart.clear();
-  localStorage.removeItem('cart');
-  store.checkoutMessage = 'Thank you for your purchase!';
-  setTimeout(() => {
-    store.checkoutMessage = '';
-  }, 3000);
-};
+function removeItem(key) {
+    store.cart.delete(key)
+    localStorage.setItem(`cart_${store.user.email}`, JSON.stringify(Object.fromEntries(store.cart)));
+  }
+
+  function clearCart() {
+    store.cart.clear();
+    localStorage.removeItem(`cart_${store.user.email}`);
+    alert("Thank you for your purchase!");
+  }
 </script>
 
 <template>
@@ -23,10 +25,10 @@ const checkout = () => {
             <img :src="`https://image.tmdb.org/t/p/w500${value.url}`" />
             <div class="item-details">
                 <h3>{{ value.title }}</h3>
-                <button @click="store.cart.delete(key)">Remove</button>
+                <button @click="removeItem(key)">Remove</button>
             </div>
         </div>
-        <button class="checkout-button" @click="checkout">Checkout</button>
+        <button class="checkout-button" @click="clearCart">Checkout</button>
         <div v-if="store.checkoutMessage" class="thank-you-message">
           {{ store.checkoutMessage }}
         </div>
