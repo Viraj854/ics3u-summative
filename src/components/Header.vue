@@ -25,12 +25,12 @@ const logout = () => {
 <template>
   <div class="header-buttons">
 
-    <div v-if="!store.email">
+    <div v-if="isHomePage">
       <RouterLink to="/register" class="button register">Register</RouterLink>
       <RouterLink to="/login" class="button login">Login</RouterLink>
     </div>
 
-    <div v-if="store.email">
+    <div v-if="!isHomePage">
       <p class="welcome-message">Welcome, {{ store.user?.displayName || 'Guest' }}</p>
       <RouterLink to="/cart" class="button cart">Cart</RouterLink>
       <RouterLink to="/settings" class="button settings">Settings</RouterLink>
