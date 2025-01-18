@@ -1,26 +1,39 @@
 <script setup>
-import { ref } from 'vue';
-import { useStore } from '../stores';
-import { useRouter } from 'vue-router';
-import { updateProfile } from 'firebase/auth';
-import { auth } from '../firebase';
+  import { ref } from 'vue';
+  import { useStore } from '../stores';
+  import { useRouter } from 'vue-router';
+  import { updateProfile, updatePassword} from 'firebase/auth';
+  import { auth } from '../firebase';
+  import Header from '@/components/Header.vue';
 
-const store = useStore();
-const router = useRouter();
+  const store = useStore();
+  const router = useRouter();
 
-const user = store.user;
-const firstName = ref(user?.displayName?.split(' ')[0] || '');
-const lastName = ref(user?.displayName?.split(' ')[1] || '');
-const email = ref(user?.email || '');
+  const user = store.user;
+  const firstName = ref(user?.displayName?.split(' ')[0] || '');
+  const lastName = ref(user?.displayName?.split(' ')[1] || '');
+  const password = ref(user?.password);
+  const email = ref(user?.email || '');
 
-const handleSubmit = async () => {
-    try {
+  const handleSubmit = async () => {
+    if (logedInWithPassword) {
+
+      try {
         await updateProfile(user, { displayName: `${firstName.value} ${lastName.value}` });
+        await updatePassword(user, password.value)
         router.push("/movies");
-    } catch (error) {
+      } catch (error) {
         alert("There was an error updating your profile!");
+      }
     }
-};
+  };
+
+  let logedInWithPassword = false;
+  auth.currentUser.providerData.forEach((provider) => {
+    if (provider.providerId == "password") {
+      logedInWithPassword = true;
+    }
+  });
 </script>
 
 <template>
@@ -36,6 +49,10 @@ const handleSubmit = async () => {
             <div class="form-group">
                 <label for="lastName">Last Name:</label>
                 <input v-model="lastName" type="text" id="lastName" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input v-model="password" type="password" id="password" required />
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
@@ -105,20 +122,20 @@ input:focus {
 form {
     display: flex;
     flex-direction: column;
-    align-items: center; 
-    justify-content: center; 
+    align-items: center;
+    justify-content: center;
 }
 
 .button-save {
-  padding: 12px 30px;
-  background-color: #4073ad;
-  font-size: 16px;
-  color: white;
-  margin-top: 20px;
-  border-radius: 5px;
+    padding: 12px 30px;
+    background-color: #4073ad;
+    font-size: 16px;
+    color: white;
+    margin-top: 20px;
+    border-radius: 5px;
 }
 
 .button-save:hover {
-  background-color: #305a8a;
+    background-color: #305a8a;
 }
 </style>
