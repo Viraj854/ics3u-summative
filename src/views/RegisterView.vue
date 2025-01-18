@@ -38,14 +38,14 @@ async function registerByEmail() {
   }
 }
 
-async function registerByGoogle(event) {
-  event.preventDefault();
+async function registerByGoogle() {
   try {
-    const user = await signInWithPopup(auth, new GoogleAuthProvider());
-    store.user = user.user;
+    const result = await signInWithPopup(auth, new GoogleAuthProvider());
+    store.user = result.user;
 
     router.push("/movies");
   } catch (error) {
+    console.error("Error during Google sign-in:", error.message);
     alert("There was an error creating a user with Google!");
   }
 }
