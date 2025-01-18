@@ -16,17 +16,18 @@
   const email = ref(user?.email || '');
 
   const handleSubmit = async () => {
-    if (logedInWithPassword) {
-
-      try {
-        await updateProfile(user, { displayName: `${firstName.value} ${lastName.value}` });
-        await updatePassword(user, password.value)
-        router.push("/movies");
-      } catch (error) {
-        alert("There was an error updating your profile!");
-      }
+  if (logedInWithPassword) {
+    try {
+      await updateProfile(user, { displayName: `${firstName.value} ${lastName.value}` });
+      await updatePassword(user, password.value);
+      router.push("/movies");
+    } catch (error) {
+      alert("There was an error updating your profile!");
     }
-  };
+  } else {
+    alert("Signed in with Google!");
+  }
+};
 
   let logedInWithPassword = false;
   auth.currentUser.providerData.forEach((provider) => {
